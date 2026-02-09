@@ -1,3 +1,4 @@
+import 'package:future_riverpod/constants/supabase_constants.dart';
 import 'package:future_riverpod/repositories/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,15 +12,5 @@ AuthRepository authRepository(Ref ref) {
 
 @riverpod
 Stream<User?> authStateStream(Ref ref) {
-  final auth = Supabase.instance.client.auth;
-
-  return auth.onAuthStateChange.map((event) {
-    return event.session?.user;
-  });
+  return sbAuth.onAuthStateChange.map((data) => data.session?.user);
 }
-
-// @riverpod
-// Stream<AuthState> authStateStream(Ref ref) {
-//   final auth = Supabase.instance.client.auth;
-//   return auth.onAuthStateChange;
-// }

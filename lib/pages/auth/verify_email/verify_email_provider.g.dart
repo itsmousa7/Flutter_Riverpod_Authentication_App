@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'signup_provider.dart';
+part of 'verify_email_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,32 +9,33 @@ part of 'signup_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(Signup)
-final signupProvider = SignupProvider._();
+@ProviderFor(VerifyEmail)
+final verifyEmailProvider = VerifyEmailProvider._();
 
-final class SignupProvider extends $AsyncNotifierProvider<Signup, void> {
-  SignupProvider._()
+final class VerifyEmailProvider
+    extends $AsyncNotifierProvider<VerifyEmail, void> {
+  VerifyEmailProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'signupProvider',
+        name: r'verifyEmailProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$signupHash();
+  String debugGetCreateSourceHash() => _$verifyEmailHash();
 
   @$internal
   @override
-  Signup create() => Signup();
+  VerifyEmail create() => VerifyEmail();
 }
 
-String _$signupHash() => r'41a36e2c3dec590f4046072808c234b69d497e68';
+String _$verifyEmailHash() => r'dc895fc5981d14d7449847ef214d28d3d4189e41';
 
-abstract class _$Signup extends $AsyncNotifier<void> {
+abstract class _$VerifyEmail extends $AsyncNotifier<void> {
   FutureOr<void> build();
   @$mustCallSuper
   @override

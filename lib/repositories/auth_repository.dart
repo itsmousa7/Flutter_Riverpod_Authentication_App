@@ -1,5 +1,4 @@
 import 'package:future_riverpod/constants/supabase_constants.dart';
-import 'package:future_riverpod/models/custom_error.dart';
 import 'package:future_riverpod/repositories/handle_exception.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -9,18 +8,72 @@ class AuthRepository {
   /// ----------------------------
   /// SIGN UP
   /// ----------------------------
-  Future<void> signup({
+  Future<String> signup({
     required String name,
     required String email,
     required String password,
   }) async {
     try {
-      await sbAuth.signUp(
+      final response = await sbAuth.signUp(
         email: email,
         password: password,
-        emailRedirectTo: 'myapplication://signUp',
+        data: {'username': name},
       );
+
+      print('Signup response: ${response.user?.id}');
+      print('User email: ${response.user?.email}');
+      print('Email confirmed at: ${response.user?.emailConfirmedAt}');
+
+      if (response.user == null) {
+        throw Exception('User creation failed');
+      }
+
+      return email;
     } catch (e) {
+      print('Signup error: $e');
+      throw handleException(e);
+    }
+  }
+
+  /// ----------------------------
+  /// VERIFY OTP
+  /// ----------------------------
+  Future<void> verifyOtp({
+    required String email,
+    required String token,
+  }) async {
+    try {
+      final response = await sbAuth.verifyOTP(
+        email: email,
+        token: token,
+        type: OtpType.signup,
+      );
+
+      print('Verify OTP response: ${response.user?.id}');
+      print('Email confirmed at: ${response.user?.emailConfirmedAt}');
+
+      if (response.session == null) {
+        throw Exception('OTP verification failed - no session created');
+      }
+    } catch (e) {
+      print('Verify OTP error: $e');
+      throw handleException(e);
+    }
+  }
+
+  /// ----------------------------
+  /// RESEND OTP
+  /// ----------------------------
+  Future<void> resendOtp({required String email}) async {
+    try {
+      final response = await sbAuth.resend(
+        type: OtpType.signup,
+        email: email,
+      );
+
+      print('Resend OTP response: $response');
+    } catch (e) {
+      print('Resend OTP error: $e');
       throw handleException(e);
     }
   }
@@ -33,11 +86,15 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      await sbAuth.signInWithPassword(
+      final response = await sbAuth.signInWithPassword(
         email: email,
         password: password,
       );
+
+      print('Sign in response: ${response.user?.id}');
+      print('Session: ${response.session?.accessToken}');
     } catch (e) {
+      print('Sign in error: $e');
       throw handleException(e);
     }
   }
@@ -74,28 +131,6 @@ class AuthRepository {
       await sbAuth.resetPasswordForEmail(
         email,
         redirectTo: 'myapplication://signUp',
-      );
-    } catch (e) {
-      throw handleException(e);
-    }
-  }
-
-  /// ----------------------------
-  /// SEND EMAIL VERIFICATION
-  /// ----------------------------
-  Future<void> sendEmailVerification() async {
-    try {
-      final user = currentUser;
-
-      if (user == null || user.email == null) {
-        throw const CustomError(
-          message: 'No authenticated user.',
-        );
-      }
-
-      await sbAuth.resend(
-        type: OtpType.email,
-        email: user.email!,
       );
     } catch (e) {
       throw handleException(e);

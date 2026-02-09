@@ -1,4 +1,3 @@
-import 'package:future_riverpod/pages/auth/verify_email/pending_email_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../repositories/auth_repository_provider.dart';
@@ -32,9 +31,6 @@ class Signup extends _$Signup {
         await ref
             .read(authRepositoryProvider)
             .signup(name: name, email: email, password: password);
-
-        // Store the pending email for verification page
-        ref.read(pendingVerificationEmailProvider.notifier).setEmail(email);
       },
     );
 

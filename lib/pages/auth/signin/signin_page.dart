@@ -8,6 +8,8 @@ import 'package:future_riverpod/pages/widgets/form_fields.dart';
 import 'package:future_riverpod/utils/error_dialog.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../repositories/auth_repository_provider.dart';
+
 class SigninPage extends ConsumerStatefulWidget {
   const SigninPage({super.key});
 
@@ -20,6 +22,7 @@ class _SigninPageState extends ConsumerState<SigninPage> {
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -39,6 +42,32 @@ class _SigninPageState extends ConsumerState<SigninPage> {
     ref.read(signinProvider.notifier).signin(email, password);
   }
 
+  Future<void> _handleEmailNotConfirmed(String email) async {
+    try {
+      // Send OTP to the user's email
+      await ref.read(authRepositoryProvider).resendOtp(email: email);
+
+      if (mounted) {
+        // Navigate to verification page
+        context.goNamed(
+          RouteNames.verifyEmail,
+          extra: email,
+        );
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification code sent to your email'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        errorDialog(context, e as CustomError);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(signinProvider, (prev, next) {
@@ -46,8 +75,9 @@ class _SigninPageState extends ConsumerState<SigninPage> {
         error: (error, _) {
           final customError = error as CustomError;
 
-          if (customError.message == 'email_not_confirmed') {
-            context.goNamed(RouteNames.verifyEmail);
+          if (customError.message == 'Email not confirmed') {
+            final email = _emailController.text.trim();
+            _handleEmailNotConfirmed(email);
             return;
           }
 
@@ -55,85 +85,88 @@ class _SigninPageState extends ConsumerState<SigninPage> {
         },
       );
     });
-    final signinState = ref.watch(signinProvider);
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Form(
-            autovalidateMode: _autovalidateMode,
-            key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
-              reverse: true,
-              children: [
-                const FlutterLogo(
-                  size: 150,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                EmailFormField(emailController: _emailController),
-                const SizedBox(
-                  height: 20,
-                ),
-                PasswordFormField(
-                  passwordController: _passwordController,
-                  labelText: 'Password',
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                CustomFilledButtons(
-                  onPressed: () {
-                    signinState.maybeWhen(
-                      loading: null,
-                      orElse: () => _submit(),
-                    );
-                  },
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  child: signinState.maybeWhen(
-                    loading: () => const CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                    orElse: () => const Text('Sign in'),
-                  ),
-                ),
 
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account?"),
-                    const SizedBox(
-                      width: 5,
+    final signinState = ref.watch(signinProvider);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Form(
+              autovalidateMode: _autovalidateMode,
+              key: _formKey,
+              child: ListView(
+                shrinkWrap: true,
+                reverse: true,
+                children: [
+                  const FlutterLogo(
+                    size: 150,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  EmailFormField(emailController: _emailController),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  PasswordFormField(
+                    passwordController: _passwordController,
+                    labelText: 'Password',
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomFilledButtons(
+                    onPressed: signinState.maybeWhen(
+                      loading: null,
+                      orElse: () => _submit,
                     ),
-                    CustomTextButtons(
-                      onPressed: () =>
-                          GoRouter.of(context).goNamed(RouteNames.signup),
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      foreground: Colors.purple,
-                      child: const Text('Sign up'),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    child: signinState.maybeWhen(
+                      loading: () => const CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                      orElse: () => const Text('Sign in'),
                     ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                CustomTextButtons(
-                  onPressed: () =>
-                      GoRouter.of(context).goNamed(RouteNames.resetPassword),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  foreground: Colors.green,
-                  child: const Text('Forget Password?'),
-                ),
-              ].reversed.toList(),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text("Don't have an account?"),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      CustomTextButtons(
+                        onPressed: () =>
+                            GoRouter.of(context).goNamed(RouteNames.signup),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        foreground: Colors.purple,
+                        child: const Text('Sign up'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomTextButtons(
+                    onPressed: () =>
+                        GoRouter.of(context).goNamed(RouteNames.resetPassword),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    foreground: Colors.green,
+                    child: const Text('Forget Password?'),
+                  ),
+                ].reversed.toList(),
+              ),
             ),
           ),
         ),

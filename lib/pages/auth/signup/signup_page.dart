@@ -43,9 +43,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     ref
         .read(signupProvider.notifier)
         .signup(
-         name:  _nameController.text.trim(),
-          email:  _emailController.text.trim(),
-         password:  _passwordController.text.trim(),
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
   }
 
@@ -54,11 +54,25 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     ref.listen<AsyncValue<void>>(
       signupProvider,
       (previous, next) {
-        next.whenOrNull(
-          error: (e, st) => errorDialog(
-            context,
-            (e as CustomError),
-          ),
+        next.when(
+          data: (_) {
+            // Success! Navigate to verification page with email
+            final email = _emailController.text.trim();
+            context.goNamed(
+              RouteNames.verifyEmail,
+              extra: email,
+            );
+          },
+          loading: () {
+            // Do nothing while loading
+          },
+          error: (e, st) {
+            // Show error dialog
+            errorDialog(
+              context,
+              (e as CustomError),
+            );
+          },
         );
       },
     );

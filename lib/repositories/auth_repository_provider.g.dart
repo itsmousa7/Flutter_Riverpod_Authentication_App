@@ -81,4 +81,4 @@ final class AuthStateStreamProvider
   }
 }
 
-String _$authStateStreamHash() => r'eee1b95d35db82ff0761ccac8c93922de2b7a64a';
+String _$authStateStreamHash() => r'37ac194f0842a94fd6158778d08325c29123d79a';
