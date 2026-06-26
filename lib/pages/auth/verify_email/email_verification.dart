@@ -136,6 +136,7 @@ class _EmailVerificationState extends ConsumerState<EmailVerification> {
             Padding(
               padding: const EdgeInsets.only(top: 30.0),
               child: PinCodeTextField(
+                autovalidateMode: AutovalidateMode.disabled,
                 autoFocus: true,
                 appContext: context,
                 pastedTextStyle: TextStyle(
@@ -144,8 +145,8 @@ class _EmailVerificationState extends ConsumerState<EmailVerification> {
                 ),
                 length: 6,
                 obscureText: true,
-                obscuringCharacter: '*',
-                blinkWhenObscuring: true,
+                obscuringCharacter: '%',
+                blinkWhenObscuring: false,
                 animationType: AnimationType.fade,
                 enabled: !isLoading,
                 validator: (v) {
@@ -155,9 +156,9 @@ class _EmailVerificationState extends ConsumerState<EmailVerification> {
                   return null;
                 },
                 pinTheme: PinTheme(
-                  inactiveFillColor: Colors.green,
-                  inactiveColor: Colors.green,
-                  selectedColor: Colors.black,
+                  inactiveFillColor: Colors.transparent,
+                  inactiveColor: Colors.black,
+                  selectedColor: Colors.green,
                   selectedFillColor: Colors.white,
                   shape: PinCodeFieldShape.box,
                   borderRadius: BorderRadius.circular(5),
@@ -201,7 +202,7 @@ class _EmailVerificationState extends ConsumerState<EmailVerification> {
               ),
             Row(
               children: [
-                const Text("Didn't get any email?"),
+                const Text("Didn't get any email"),
                 TextButton(
                   onPressed: _canResend && !isLoading ? _resendOtp : null,
                   child: Text(

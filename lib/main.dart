@@ -27,7 +27,6 @@ class MyApp extends ConsumerWidget {
       title: 'Supabase riverpod Auth',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
       ),
       routerConfig: router,
     );

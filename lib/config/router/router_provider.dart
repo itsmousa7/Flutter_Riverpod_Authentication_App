@@ -69,9 +69,7 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: '/supabaseError',
         name: RouteNames.supabaseError,
-        builder: (context, state) {
-          return const SupabaseErrorPage();
-        },
+        builder: (context, state) => const SupabaseErrorPage(),
       ),
       GoRoute(
         path: '/signin',
